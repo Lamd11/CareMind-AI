@@ -1,0 +1,16 @@
+{
+  "name": "caremind-seed",
+  "scripts": {
+    "seed-questions": "ts-node seedQuestions.ts",
+    "seed-users": "ts-node seedTestUsers.ts",
+    "scenario": "ts-node runScenario.ts"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}

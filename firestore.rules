@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Patients can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /sessions/{sessionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+        match /questionResults/{resultId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+    }
+
+    // Clinicians can read patient data where they are the linked clinician
+    match /users/{userId} {
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'clinician' &&
+        resource.data.linkedClinicianId == request.auth.uid;
+    }
+
+    // Questions: readable by authenticated users, writable by admin only (via Cloud Functions)
+    match /questions/{questionId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Cloud Functions only
+    }
+
+    // Alerts: readable by the linked clinician
+    match /alerts/{alertId} {
+      allow read, update: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.clinicianId == request.auth.uid
+      );
+      allow write: if false; // Cloud Functions only
+    }
+  }
+}
