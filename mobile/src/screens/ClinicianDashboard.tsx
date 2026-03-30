@@ -30,11 +30,11 @@ import { getPatientTrendsFn, acknowledgeAlertFn } from '../services/functions';
 import { TrendChart } from '../components/TrendChart';
 import { AlertBadge } from '../components/AlertBadge';
 import { AlertDoc, SessionDoc } from '../types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'ClinicianDashboard'>;
+  navigation: StackNavigationProp<RootStackParamList, 'ClinicianDashboard'>;
   route: { params: { clinicianId: string; patientId: string } };
 };
 

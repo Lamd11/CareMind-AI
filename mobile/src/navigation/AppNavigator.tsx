@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { LoginScreen } from '../screens/LoginScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { QuestionScreen } from '../screens/QuestionScreen';
@@ -18,12 +18,12 @@ import { ClinicianDashboard } from '../screens/ClinicianDashboard';
 export type RootStackParamList = {
   Login: undefined;
   Home: { userId: string; userName: string };
-  Question: undefined;
-  Result: undefined;
+  Question: { userId: string; userName: string };
+  Result: { userId: string; userName: string };
   ClinicianDashboard: { clinicianId: string; patientId: string };
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
   return (

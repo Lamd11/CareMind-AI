@@ -21,11 +21,11 @@ import { signOut } from 'firebase/auth';
 import { auth, firestore } from '../services/firebase';
 import { useSessionStore } from '../store/sessionStore';
 import { SessionDoc } from '../types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
+  navigation: StackNavigationProp<RootStackParamList, 'Home'>;
   route: { params: { userId: string; userName: string } };
 };
 
@@ -61,7 +61,7 @@ export function HomeScreen({ navigation, route }: Props) {
   const handleStartSession = async () => {
     reset();
     await startNewSession();
-    navigation.navigate('Question');
+    navigation.navigate('Question', { userId, userName });
   };
 
   const handleSignOut = async () => {

@@ -21,11 +21,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, firestore } from '../services/firebase';
 import { UserDoc } from '../types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;
+  navigation: StackNavigationProp<RootStackParamList, 'Login'>;
 };
 
 export function LoginScreen({ navigation }: Props) {

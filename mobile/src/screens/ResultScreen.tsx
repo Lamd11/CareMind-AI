@@ -17,11 +17,11 @@ import {
 } from 'react-native';
 import { useSessionStore } from '../store/sessionStore';
 import { DifficultyLabel } from '../components/DifficultyLabel';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Result'>;
+  navigation: StackNavigationProp<RootStackParamList, 'Result'>;
   route: { params: { userId: string; userName: string } };
 };
 

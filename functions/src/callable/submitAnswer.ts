@@ -9,8 +9,8 @@
  */
 
 import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
+import { FieldValue } from 'firebase-admin/firestore';
 import { DifficultyTier, QuestionResultDoc } from '../models/types';
 import { db, getUser } from '../utils/firestore';
 
@@ -68,9 +68,9 @@ export const submitAnswer = functions.https.onCall(
       .doc(sessionId);
 
     batch.update(sessionRef, {
-      totalQuestions: admin.firestore.FieldValue.increment(1),
-      ...(correct ? { correctAnswers: admin.firestore.FieldValue.increment(1) } : {}),
-      answeredQuestionIds: admin.firestore.FieldValue.arrayUnion(questionId),
+      totalQuestions: FieldValue.increment(1),
+      ...(correct ? { correctAnswers: FieldValue.increment(1) } : {}),
+      answeredQuestionIds: FieldValue.arrayUnion(questionId),
     });
 
     // Update denormalized last5Results on user doc

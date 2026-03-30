@@ -22,16 +22,17 @@ import { useSessionStore } from '../store/sessionStore';
 import { OptionButton } from '../components/OptionButton';
 import { ProgressBar } from '../components/ProgressBar';
 import { DifficultyLabel } from '../components/DifficultyLabel';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type OptionState = 'default' | 'correct' | 'incorrect' | 'disabled';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Question'>;
+  navigation: StackNavigationProp<RootStackParamList, 'Question'>;
+  route: { params: { userId: string; userName: string } };
 };
 
-export function QuestionScreen({ navigation }: Props) {
+export function QuestionScreen({ navigation, route }: Props) {
   const {
     currentQuestion,
     currentDifficulty,
@@ -49,9 +50,9 @@ export function QuestionScreen({ navigation }: Props) {
   // Navigate to result screen when session completes
   React.useEffect(() => {
     if (status === 'complete' && sessionResult) {
-      navigation.replace('Result');
+      navigation.replace('Result', route.params);
     }
-  }, [status, sessionResult, navigation]);
+  }, [status, sessionResult, navigation, route.params]);
 
   // Reset option states when question changes
   React.useEffect(() => {
