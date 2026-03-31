@@ -15,4 +15,5 @@ export interface QuestionDoc {
   correctAnswer: string;
   difficultyTier: DifficultyTier;
   category: QuestionCategory;
+  source?: 'ai_generated' | 'static_bank';
 }

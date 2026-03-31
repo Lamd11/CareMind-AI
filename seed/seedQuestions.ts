@@ -31,7 +31,7 @@ const allQuestions: QuestionDoc[] = [
   ...shortTermRecallQuestions,
   ...attentionMemoryQuestions,
   ...languageNamingQuestions,
-].map((q) => ({ ...q, questionId: uuidv4() }));
+].map((q) => ({ ...q, questionId: uuidv4(), source: 'static_bank' as const }));
 
 console.log(`Total questions to seed: ${allQuestions.length}`);
 
