@@ -6,7 +6,7 @@
  * exactly which score threshold triggered which message.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -19,14 +19,37 @@ import { useSessionStore } from '../store/sessionStore';
 import { DifficultyLabel } from '../components/DifficultyLabel';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { auth } from '../services/firebase';
+import { getSessionResultsFn } from '../services/functions';
+import { DomainAccuracy, QuestionCategory } from '../types';
 
 type Props = {
   navigation: StackNavigationProp<RootStackParamList, 'Result'>;
   route: { params: { userId: string; userName: string } };
 };
 
+const DOMAIN_LABELS: Record<QuestionCategory, string> = {
+  orientation: 'Orientation',
+  short_term_recall: 'Short-Term Recall',
+  attention_memory: 'Attention & Memory',
+  language_naming: 'Language & Naming',
+};
+
+const ALL_DOMAINS: QuestionCategory[] = [
+  'orientation', 'short_term_recall', 'attention_memory', 'language_naming',
+];
+
 export function ResultScreen({ navigation, route }: Props) {
-  const { sessionResult, reset } = useSessionStore();
+  const { sessionResult, sessionId, reset } = useSessionStore();
+  const [domainAccuracy, setDomainAccuracy] = useState<Partial<Record<QuestionCategory, DomainAccuracy>>>({});
+
+  useEffect(() => {
+    const userId = auth.currentUser?.uid;
+    if (!userId || !sessionId) return;
+    getSessionResultsFn({ userId, sessionId })
+      .then((res) => setDomainAccuracy(res.data.domainAccuracy))
+      .catch(() => { /* non-critical */ });
+  }, [sessionId]);
 
   if (!sessionResult) {
     navigation.replace('Home', route.params);
@@ -76,6 +99,27 @@ export function ResultScreen({ navigation, route }: Props) {
         <View style={styles.messageCard}>
           <Text style={styles.messageText}>{message}</Text>
         </View>
+
+        {/* Per-domain accuracy breakdown */}
+        {ALL_DOMAINS.some((d) => domainAccuracy[d]) && (
+          <View style={styles.domainCard}>
+            <Text style={styles.domainCardTitle}>Performance by Domain</Text>
+            {ALL_DOMAINS.map((domain) => {
+              const acc = domainAccuracy[domain];
+              if (!acc) return null;
+              const color = acc.pct >= 70 ? '#22C55E' : acc.pct >= 50 ? '#F59E0B' : '#EF4444';
+              return (
+                <View key={domain} style={styles.domainRow}>
+                  <Text style={styles.domainLabel}>{DOMAIN_LABELS[domain]}</Text>
+                  <View style={styles.domainBarTrack}>
+                    <View style={[styles.domainBarFill, { width: `${acc.pct}%` as any, backgroundColor: color }]} />
+                  </View>
+                  <Text style={[styles.domainPct, { color }]}>{acc.correct}/{acc.total}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
 
         {/* Explanation for clinician transparency */}
         <View style={styles.explanationCard}>
@@ -189,6 +233,49 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 26,
     textAlign: 'center',
+  },
+  domainCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    width: '100%',
+    marginBottom: 16,
+  },
+  domainCardTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+  domainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    gap: 8,
+  },
+  domainLabel: {
+    fontSize: 12,
+    color: '#374151',
+    width: 110,
+  },
+  domainBarTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  domainBarFill: {
+    height: 8,
+    borderRadius: 4,
+  },
+  domainPct: {
+    fontSize: 12,
+    fontWeight: '600',
+    width: 32,
+    textAlign: 'right',
   },
   explanationCard: {
     backgroundColor: '#FFFFFF',

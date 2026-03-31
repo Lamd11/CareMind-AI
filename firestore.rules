@@ -15,8 +15,9 @@ service cloud.firestore {
       }
     }
 
-    // Clinicians can read patient data where they are the linked clinician
+    // Clinicians can query and read patient data where they are the linked clinician
     match /users/{userId} {
+      allow list: if request.auth != null;
       allow read: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'clinician' &&
         resource.data.linkedClinicianId == request.auth.uid;

@@ -20,6 +20,7 @@ export interface SessionResultDetail {
   correct: boolean;
   responseTimeMs: number;
   answeredAt: number;
+  difficultyExplanation?: string; // why difficulty was at this tier (from QuestionResultDoc)
 }
 
 export interface DomainAccuracy {
@@ -109,6 +110,7 @@ export const getSessionResults = functions.https.onCall(
         correct: r.correct,
         responseTimeMs: r.responseTimeMs,
         answeredAt: r.answeredAt,
+        difficultyExplanation: r.difficultyExplanation,
       };
     });
 

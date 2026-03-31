@@ -709,6 +709,12 @@ function SessionAttemptView({
                 <View style={styles.attemptExpanded}>
                   <Text style={styles.attemptAnswerLabel}>Correct answer</Text>
                   <Text style={styles.attemptAnswer}>{r.correctAnswer}</Text>
+                  {r.difficultyExplanation ? (
+                    <View style={styles.adaptationNote}>
+                      <Text style={styles.adaptationNoteLabel}>Adaptation reasoning</Text>
+                      <Text style={styles.adaptationNoteText}>{r.difficultyExplanation}</Text>
+                    </View>
+                  ) : null}
                 </View>
               )}
             </TouchableOpacity>
@@ -1411,4 +1417,7 @@ const styles = StyleSheet.create({
   attemptExpanded: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#E5E7EB' },
   attemptAnswerLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600', marginBottom: 4 },
   attemptAnswer: { fontSize: 13, color: '#15803D', fontWeight: '600' },
+  adaptationNote: { marginTop: 8, padding: 8, backgroundColor: '#F0F9FF', borderRadius: 6, borderLeftWidth: 3, borderLeftColor: '#0EA5E9' },
+  adaptationNoteLabel: { fontSize: 10, fontWeight: '700', color: '#0369A1', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 },
+  adaptationNoteText: { fontSize: 12, color: '#0C4A6E', lineHeight: 17 },
 });

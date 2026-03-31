@@ -26,6 +26,7 @@ export interface UserDoc {
   linkedClinicianId?: string; // set on patient documents
   baselineScore?: number;     // mean of first 5 sessions; set once
   last5Results?: Array<{ correct: boolean; responseTimeMs: number }>; // denormalized rolling window (last 5 answers)
+  fcmToken?: string;          // FCM device token for push notifications
   createdAt: number;          // Unix ms
 }
 
@@ -176,6 +177,7 @@ export interface SessionResultDetail {
   correct: boolean;
   responseTimeMs: number;
   answeredAt: number;
+  difficultyExplanation?: string;
 }
 
 export interface DomainAccuracy {

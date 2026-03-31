@@ -11,7 +11,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, doc, setDoc } from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 // TODO: Replace with your Firebase project config from Firebase Console
@@ -39,4 +39,34 @@ if (USE_EMULATOR) {
   connectFirestoreEmulator(firestore, 'localhost', 8080);
   connectFunctionsEmulator(functions, 'localhost', 5001);
   console.log('[Firebase] Connected to local emulators');
+}
+
+/**
+ * Register FCM token for push notifications.
+ * 
+ * In production on React Native, this would:
+ * 1. Request device notification permission
+ * 2. Get FCM token via react-native-firebase getToken()
+ * 3. Store token to Firestore user doc
+ * 
+ * For the emulator/thesis demo, we generate a demo token and log the registration.
+ * In a real app, the token would be sent by the device and stored by the platform SDK.
+ */
+export async function registerFcmToken(userId: string): Promise<void> {
+  try {
+    // In emulator, generate a demo token to simulate device registration
+    // In production, this would be the actual device FCM token from react-native-firebase
+    const demoToken = `demo_token_${userId}_${Date.now()}`;
+    
+    // Store to Firestore
+    await setDoc(
+      doc(firestore, 'users', userId),
+      { fcmToken: demoToken },
+      { merge: true }
+    );
+    
+    console.log(`[FCM] Token registered for user ${userId}`);
+  } catch (err) {
+    console.log(`[FCM] Token registration failed (emulator):`, err instanceof Error ? err.message : err);
+  }
 }

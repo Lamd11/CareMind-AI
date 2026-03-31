@@ -32,6 +32,7 @@ type Props = {
 export function HomeScreen({ navigation, route }: Props) {
   const { userId, userName } = route.params;
   const [lastSession, setLastSession] = useState<SessionDoc | null>(null);
+  const [allSessions, setAllSessions] = useState<SessionDoc[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const { startNewSession, status, reset } = useSessionStore();
 
@@ -45,11 +46,13 @@ export function HomeScreen({ navigation, route }: Props) {
         collection(firestore, 'users', userId, 'sessions'),
         where('completedAt', '!=', null),
         orderBy('completedAt', 'desc'),
-        limit(1)
+        limit(10)
       );
       const snap = await getDocs(q);
-      if (!snap.empty) {
-        setLastSession(snap.docs[0].data() as SessionDoc);
+      const sessions = snap.docs.map(doc => doc.data() as SessionDoc).reverse(); // oldest first
+      setAllSessions(sessions);
+      if (sessions.length > 0) {
+        setLastSession(sessions[sessions.length - 1]); // most recent
       }
     } catch {
       // ignore — not critical
@@ -70,6 +73,45 @@ export function HomeScreen({ navigation, route }: Props) {
   };
 
   const firstName = userName.split(' ')[0];
+
+  const getBaselineInfo = () => {
+    if (allSessions.length < 5) {
+      return {
+        isEstablished: false,
+        baseline: null,
+        sessionsRemaining: 5 - allSessions.length,
+      };
+    }
+    const firstFive = allSessions.slice(0, 5);
+    const baseline = firstFive.reduce((sum, s) => sum + (s.sessionScore ?? 0), 0) / 5;
+    return {
+      isEstablished: true,
+      baseline,
+      sessionsRemaining: 0,
+    };
+  };
+
+  const getTrendIndicator = () => {
+    if (allSessions.length < 3) return '→';
+    
+    const last3 = allSessions.slice(-3).map(s => s.sessionScore ?? 0);
+    const baselineInfo = getBaselineInfo();
+    
+    if (!baselineInfo.isEstablished) return '→';
+    
+    const avg3 = last3.reduce((a, b) => a + b) / 3;
+    const baseline = baselineInfo.baseline!;
+    
+    if (avg3 > baseline + 0.05) {
+      return '↑ Improving';
+    } else if (avg3 < baseline - 0.05) {
+      return '↓ Declining';
+    } else {
+      return '→ Stable';
+    }
+  };
+
+  const baselineInfo = getBaselineInfo();
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -105,6 +147,46 @@ export function HomeScreen({ navigation, route }: Props) {
           <Text style={styles.noSession}>No sessions yet — start your first one!</Text>
         )}
       </View>
+
+      {/* Your Progress section */}
+      {allSessions.length > 0 && (
+        <View style={styles.progressCard}>
+          <Text style={styles.progressCardTitle}>Your Progress</Text>
+          <View style={styles.progressRow}>
+            <Text style={styles.progressLabel}>Sessions Completed</Text>
+            <Text style={styles.progressValue}>{allSessions.length}</Text>
+          </View>
+          
+          {baselineInfo.isEstablished ? (
+            <>
+              <View style={styles.progressDivider} />
+              <View style={styles.progressRow}>
+                <Text style={styles.progressLabel}>Baseline Established</Text>
+                <Text style={styles.progressValue}>
+                  {Math.round(baselineInfo.baseline! * 100)}%
+                </Text>
+              </View>
+              <View style={styles.progressRow}>
+                <Text style={styles.progressLabel}>Recent Trend</Text>
+                <Text style={styles.trendText}>{getTrendIndicator()}</Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={styles.progressDivider} />
+              <View style={styles.progressRow}>
+                <Text style={styles.progressLabel}>Baseline in Progress</Text>
+                <Text style={styles.progressValue}>
+                  {allSessions.length} / 5
+                </Text>
+              </View>
+              <Text style={styles.progressHint}>
+                Complete {baselineInfo.sessionsRemaining} more session{baselineInfo.sessionsRemaining === 1 ? '' : 's'} to establish baseline
+              </Text>
+            </>
+          )}
+        </View>
+      )}
 
       {/* Start button */}
       <TouchableOpacity
@@ -256,5 +338,53 @@ const styles = StyleSheet.create({
     color: '#374151',
     lineHeight: 20,
     marginBottom: 8,
+  },
+  progressCard: {
+    backgroundColor: '#F0F9FF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0EA5E9',
+  },
+  progressCardTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0369A1',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 12,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  progressLabel: {
+    fontSize: 14,
+    color: '#475569',
+    fontWeight: '500',
+  },
+  progressValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0EA5E9',
+  },
+  trendText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#16A34A',
+  },
+  progressDivider: {
+    height: 1,
+    backgroundColor: '#E0F2FE',
+    marginVertical: 8,
+  },
+  progressHint: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
 });

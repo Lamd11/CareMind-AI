@@ -24,6 +24,7 @@ export interface UserDoc {
   baselineScore?: number;
   last5Results?: Array<{ correct: boolean; responseTimeMs: number }>;
   nextSessionQueue?: QuestionDoc[]; // pre-generated questions for the patient's next session
+  fcmToken?: string;          // FCM device token for push notifications
   createdAt: number;
 }
 

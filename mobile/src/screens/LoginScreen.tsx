@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, firestore } from '../services/firebase';
+import { auth, firestore, registerFcmToken } from '../services/firebase';
 import { UserDoc } from '../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -52,6 +52,9 @@ export function LoginScreen({ navigation }: Props) {
       }
 
       const user = userSnap.data() as UserDoc;
+
+      // Register FCM token for push notifications
+      await registerFcmToken(uid);
 
       if (user.role === 'clinician') {
         navigation.replace('ClinicianDashboard', {
