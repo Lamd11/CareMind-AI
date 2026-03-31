@@ -20,6 +20,14 @@ import {
   GetPatientTrendsOutput,
   AcknowledgeAlertInput,
   AcknowledgeAlertOutput,
+  PreviewGeneratedQuestionInput,
+  PreviewGeneratedQuestionOutput,
+  GetQuestionBankInput,
+  GetQuestionBankOutput,
+  GetSessionResultsInput,
+  GetSessionResultsOutput,
+  RefreshQuestionPoolInput,
+  RefreshQuestionPoolOutput,
 } from '../types';
 
 export const startSessionFn = httpsCallable<StartSessionInput, StartSessionOutput>(
@@ -50,4 +58,24 @@ export const getPatientTrendsFn = httpsCallable<GetPatientTrendsInput, GetPatien
 export const acknowledgeAlertFn = httpsCallable<AcknowledgeAlertInput, AcknowledgeAlertOutput>(
   functions,
   'acknowledgeAlert'
+);
+
+export const previewGeneratedQuestionFn = httpsCallable<
+  PreviewGeneratedQuestionInput,
+  PreviewGeneratedQuestionOutput
+>(functions, 'previewGeneratedQuestion');
+
+export const getQuestionBankFn = httpsCallable<GetQuestionBankInput, GetQuestionBankOutput>(
+  functions,
+  'getQuestionBank'
+);
+
+export const getSessionResultsFn = httpsCallable<GetSessionResultsInput, GetSessionResultsOutput>(
+  functions,
+  'getSessionResults'
+);
+
+export const refreshQuestionPoolFn = httpsCallable<RefreshQuestionPoolInput, RefreshQuestionPoolOutput>(
+  functions,
+  'refreshQuestionPool'
 );

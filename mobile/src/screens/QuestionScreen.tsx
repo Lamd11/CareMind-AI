@@ -121,10 +121,25 @@ export function QuestionScreen({ navigation, route }: Props) {
           <DifficultyLabel tier={currentDifficulty} />
         </View>
 
-        {/* Category chip */}
-        <Text style={styles.categoryChip}>
-          {categoryLabel(currentQuestion.category)}
-        </Text>
+        {/* Category + source row */}
+        <View style={styles.categoryRow}>
+          <Text style={styles.categoryChip}>
+            {categoryLabel(currentQuestion.category)}
+          </Text>
+          {currentQuestion.source && (
+            <View style={[
+              styles.sourceBadge,
+              currentQuestion.source === 'ai_generated' ? styles.sourceBadgeAI : styles.sourceBadgeStatic,
+            ]}>
+              <Text style={[
+                styles.sourceBadgeText,
+                currentQuestion.source === 'ai_generated' ? styles.sourceBadgeTextAI : styles.sourceBadgeTextStatic,
+              ]}>
+                {currentQuestion.source === 'ai_generated' ? 'AI Generated' : 'Static Bank'}
+              </Text>
+            </View>
+          )}
+        </View>
 
         {/* Question text — large accessible font */}
         <Text style={styles.questionText} accessible accessibilityRole="text">
@@ -176,13 +191,39 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     gap: 12,
   },
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
   categoryChip: {
     fontSize: 13,
     color: '#6B7280',
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    marginBottom: 16,
+  },
+  sourceBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  sourceBadgeAI: {
+    backgroundColor: '#EDE9FE',
+  },
+  sourceBadgeStatic: {
+    backgroundColor: '#F3F4F6',
+  },
+  sourceBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  sourceBadgeTextAI: {
+    color: '#7C3AED',
+  },
+  sourceBadgeTextStatic: {
+    color: '#6B7280',
   },
   questionText: {
     fontSize: 22, // minimum 22pt for dementia accessibility

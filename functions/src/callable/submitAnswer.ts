@@ -76,7 +76,7 @@ export const submitAnswer = functions.https.onCall(
     // Update denormalized last5Results on user doc
     const user = await getUser(userId);
     const currentLast5 = user?.last5Results ?? [];
-    const newLast5 = [...currentLast5, correct].slice(-5); // keep only last 5
+    const newLast5 = [...currentLast5, { correct, responseTimeMs }].slice(-5); // keep only last 5
 
     const userRef = db().collection('users').doc(userId);
     batch.update(userRef, { last5Results: newLast5 });

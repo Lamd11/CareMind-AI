@@ -22,7 +22,8 @@ export interface UserDoc {
   email: string;
   linkedClinicianId?: string;
   baselineScore?: number;
-  last5Results?: boolean[];
+  last5Results?: Array<{ correct: boolean; responseTimeMs: number }>;
+  nextSessionQueue?: QuestionDoc[]; // pre-generated questions for the patient's next session
   createdAt: number;
 }
 
@@ -37,6 +38,7 @@ export interface SessionDoc {
   difficultyLevel: DifficultyTier;
   rollingAverage?: number;
   answeredQuestionIds: string[];
+  questionQueue?: QuestionDoc[]; // V2: pre-generated questions filled at session start
 }
 
 export interface QuestionResultDoc {
@@ -58,6 +60,8 @@ export interface QuestionDoc {
   correctAnswer: string;
   difficultyTier: DifficultyTier;
   category: QuestionCategory;
+  source?: 'ai_generated' | 'static_bank'; // V2: tracks whether Claude generated this
+  generatedAt?: number; // Unix ms — set for ai_generated questions only
 }
 
 export interface AlertDoc {

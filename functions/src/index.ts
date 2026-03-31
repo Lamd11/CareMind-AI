@@ -19,11 +19,15 @@ import * as admin from 'firebase-admin';
 admin.initializeApp();
 
 export { startSession } from './callable/startSession';
-export { getNextQuestion } from './callable/getNextQuestion';
+export { getNextQuestion, generateQuestion } from './callable/getNextQuestion';
+export { previewGeneratedQuestion } from './callable/previewGeneratedQuestion';
 export { submitAnswer } from './callable/submitAnswer';
 export { endSession } from './callable/endSession';
 export { getPatientTrends } from './callable/getPatientTrends';
 export { acknowledgeAlert } from './callable/acknowledgeAlert';
+export { getQuestionBank } from './callable/getQuestionBank';
+export { getSessionResults } from './callable/getSessionResults';
+export { refreshQuestionPool } from './callable/refreshQuestionPool';
 
 export { onSessionComplete } from './triggers/onSessionComplete';
 export { onAlertCreated } from './triggers/onAlertCreated';

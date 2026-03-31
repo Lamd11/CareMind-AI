@@ -25,7 +25,7 @@ export interface UserDoc {
   email: string;
   linkedClinicianId?: string; // set on patient documents
   baselineScore?: number;     // mean of first 5 sessions; set once
-  last5Results?: boolean[];   // denormalized rolling window (last 5 answers)
+  last5Results?: Array<{ correct: boolean; responseTimeMs: number }>; // denormalized rolling window (last 5 answers)
   createdAt: number;          // Unix ms
 }
 
@@ -40,6 +40,7 @@ export interface SessionDoc {
   difficultyLevel: DifficultyTier;
   rollingAverage?: number;     // accuracy at session end
   answeredQuestionIds: string[]; // prevents repeat questions within session
+  questionQueue?: QuestionDoc[]; // V2: pre-generated questions filled at session start
 }
 
 export interface QuestionResultDoc {
@@ -61,6 +62,8 @@ export interface QuestionDoc {
   correctAnswer: string;       // must be one of options
   difficultyTier: DifficultyTier;
   category: QuestionCategory;
+  source?: 'ai_generated' | 'static_bank'; // V2: tracks whether Claude generated this
+  generatedAt?: number; // Unix ms — set for ai_generated questions only
 }
 
 export interface AlertDoc {
@@ -139,6 +142,62 @@ export interface AcknowledgeAlertInput {
 }
 export interface AcknowledgeAlertOutput {
   ok: boolean;
+}
+
+export interface PreviewGeneratedQuestionInput {
+  domain: QuestionCategory;
+  tier: DifficultyTier;
+}
+export interface PreviewGeneratedQuestionOutput {
+  question: QuestionDoc;
+  source: 'ai_generated' | 'static_bank';
+  generationMs?: number;
+  promptUsed?: string;
+  rationale?: string;
+  staticComparison?: QuestionDoc;
+}
+
+export interface GetQuestionBankInput {
+  category?: QuestionCategory;
+  difficultyTier?: DifficultyTier;
+}
+export interface GetQuestionBankOutput {
+  questions: QuestionDoc[];
+  total: number;
+}
+
+export interface SessionResultDetail {
+  resultId: string;
+  questionId: string;
+  questionText: string;
+  correctAnswer: string;
+  category: QuestionCategory;
+  difficultyTier: number;
+  correct: boolean;
+  responseTimeMs: number;
+  answeredAt: number;
+}
+
+export interface DomainAccuracy {
+  correct: number;
+  total: number;
+  pct: number;
+}
+
+export interface GetSessionResultsInput {
+  userId: string;
+  sessionId: string;
+}
+export interface GetSessionResultsOutput {
+  results: SessionResultDetail[];
+  domainAccuracy: Partial<Record<QuestionCategory, DomainAccuracy>>;
+}
+
+export interface RefreshQuestionPoolInput {
+  _unused?: never; // callable requires a data arg; pass empty object
+}
+export interface RefreshQuestionPoolOutput {
+  generated: number;
 }
 
 // ─── Local app state (Zustand store) ────────────────────────────────────────

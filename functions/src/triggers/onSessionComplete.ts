@@ -14,6 +14,7 @@ import * as functions from 'firebase-functions';
 import { SessionDoc } from '../models/types';
 import { db } from '../utils/firestore';
 import { runNotificationPipeline } from '../engines/notificationEngine';
+import { preGenerateNextSessionQueue } from '../engines/questionPreGenerator';
 
 export const onSessionComplete = functions.firestore
   .document('users/{userId}/sessions/{sessionId}')
@@ -42,6 +43,18 @@ export const onSessionComplete = functions.firestore
     const sessions = sessionsSnap.docs.map((d) => d.data() as SessionDoc);
 
     await runNotificationPipeline(userId, sessions);
+
+    // Pre-generate questions for the patient's NEXT session in background.
+    // Collects all question IDs used across all sessions so new sessions get fresh questions.
+    const allUsedIds: string[] = sessions.flatMap((s) =>
+      (s.answeredQuestionIds ?? [])
+    );
+
+    const nextTier = after.difficultyLevel ?? 1;
+
+    preGenerateNextSessionQueue(userId, nextTier, allUsedIds).catch((err) =>
+      functions.logger.warn(`onSessionComplete: pre-generation failed for user ${userId}`, err)
+    );
 
     return null;
   });

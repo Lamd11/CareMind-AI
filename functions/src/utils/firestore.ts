@@ -38,12 +38,18 @@ export async function getCompletedSessions(userId: string, limit = 30): Promise<
 
 export async function getQuestionsByTier(
   tier: number,
-  exclude: string[] = []
+  exclude: string[] = [],
+  category?: string
 ): Promise<QuestionDoc[]> {
-  const snap = await db()
+  let query = db()
     .collection('questions')
-    .where('difficultyTier', '==', tier)
-    .get();
+    .where('difficultyTier', '==', tier) as FirebaseFirestore.Query;
+
+  if (category) {
+    query = query.where('category', '==', category);
+  }
+
+  const snap = await query.get();
   const all = snap.docs.map((d) => d.data() as QuestionDoc);
   return all.filter((q) => !exclude.includes(q.questionId));
 }
